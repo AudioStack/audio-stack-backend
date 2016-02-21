@@ -1,0 +1,11 @@
+{
+  "name": "audio-stack",
+  "version": "0.0.1",
+  "description": "Manages all your audio (and video) players, puts them into a stack and only lets the currently first play",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "narrowtux",
+  "license": "licenseRef-LICENSE"
+}

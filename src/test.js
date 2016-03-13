@@ -58,18 +58,25 @@ app.ws('/plugin', (ws, req) => {
         var oldState = player.state;
         switch (msg.event) {
             case 'playing':
-                player.state = 'playing';
-                break;
             case 'paused':
-                player.state = 'paused';
+            case 'finished':
+                player.state = msg.event;
                 break;
+            default: return;
+        }
+        var index = order.indexOf(player);
+        if (index !== -1 && ((player.state === 'playing' && oldState !== 'playing') || player.state === 'finished')) {
+            order.splice(index, 1);
+        }
+        if (oldState !== 'finished' && player.state === 'finished') {
+            if (order.length > 0) {
+                var nextPlayer = order[0];
+                if (nextPlayer.state !== 'playing') {
+                    nextPlayer.play();
+                }
+            }
         }
         if (oldState !== 'playing' && player.state === 'playing') {
-            var index = order.indexOf(player);
-            console.log(index);
-            if (index !== -1) {
-                order.splice(index, 1);
-            }
             order.unshift(player);
             if (order.length > 1) {
                 var oldPlayer = order[1];
@@ -78,7 +85,26 @@ app.ws('/plugin', (ws, req) => {
                 }
             }
         }
-        console.log(order);
+
+        console.log('\nOrder:');
+        for (var i in order) {
+            var str = "";
+            var player = order[i];
+
+            switch (player.state) {
+                case 'playing':
+                    str+='> ';
+                    break;
+                case 'paused':
+                    str+='||';
+                    break;
+                case 'finished':
+                    str+='__';
+                    break;
+            }
+            str+= ' ' + player.id;
+            console.log(str);
+        }
     })
 });
 

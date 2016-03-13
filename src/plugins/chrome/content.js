@@ -24,15 +24,22 @@ port.onMessage.addListener(function (msg) {
         switch (msg.command) {
             case 'play':
                 player.play();
-                playing(msg.player);
+                //playing(msg.player);
                 break;
             case 'pause':
                 player.pause();
-                paused(msg.player);
+                //paused(msg.player);
                 break;
         }
     }
 });
+
+window.onunload = function() {
+    for (var key in players) {
+        if (players.hasOwnProperty(key))
+            ended(key);
+    }
+}
 
 function playing(id) {
     console.log('Media', id, 'is now playing');
@@ -46,6 +53,14 @@ function paused(id) {
     console.log('Media', id, 'is now paused');
     port.postMessage({
         event: 'paused',
+        player: id
+    })
+}
+
+function ended(id) {
+    console.log('Media', id, 'has ended playback');
+    port.postMessage({
+        event: 'finished',
         player: id
     })
 }
@@ -68,6 +83,10 @@ function registerMedia(element) {
 
         element.addEventListener('pause', function() {
             paused(element.guid);
+        });
+
+        element.addEventListener('ended', function() {
+            ended(element.guid);
         });
     }
 }

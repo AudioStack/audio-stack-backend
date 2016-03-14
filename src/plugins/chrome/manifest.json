@@ -17,6 +17,7 @@
         "*://*/*"
       ],
       "js": [
+        "youtube-detect.js",
         "content.js"
       ]
     }

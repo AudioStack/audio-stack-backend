@@ -13,15 +13,15 @@ WebSockets for plugins
 
 Plan to support all popular media players first, then offer an API for the community to implement lesser-known ones.
 
- * Webbrowser plugins (Chrome, Firefox, Safari)
-   * Youtube.com
-   * play.spotify.com
-   * soundcloud.com
-   * vimeo.com
-   * Generic HTML5 `<audio>`/`<video>`
- * iTunes
- * Spotify
- * VLC
+- [ ] Webbrowser plugins (Chrome, Firefox, Safari)
+   - [ ] Youtube.com
+   - [ ] play.spotify.com
+   - [ ] soundcloud.com
+   - [ ] vimeo.com
+   - [x] Generic HTML5 `<audio>`/`<video>`
+- [x] iTunes
+- [x] Spotify
+- [ ] VLC
 
 ### API
 

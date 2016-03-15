@@ -20,11 +20,41 @@ class Player {
     }
 
     play() {
+        this.waitingFor = 'playing';
+        this.automaticState = 'playing';
+    }
+
+    pause() {
+        this.waitingFor = 'paused';
+        this.automaticState = 'paused';
+    }
+
+    setState(state) {
+        if (this.state === state) {
+            return;
+        }
+        if (this.waitingFor !== state) {
+            this.automaticState = null;
+        }
+        this.waitingFor = null;
+        this.state = state;
+    }
+
+}
+
+class WebSocketPlayer extends Player {
+    constructor(id) {
+        super(id);
+    }
+
+    play() {
         this.sendCommand('play');
+        super.play();
     }
 
     pause() {
         this.sendCommand('pause');
+        super.play();
     }
 
     sendCommand(command) {
@@ -44,10 +74,12 @@ class NowPlayingPlayer extends Player {
     }
 
     play() {
+        super.play();
         applescript.execString('tell app "' + this.type + '" to play');
     }
 
     pause() {
+        super.pause();
         applescript.execString('tell app "' + this.type + '" to pause');
     }
 }
@@ -97,7 +129,7 @@ function handleMessage(msg, player) {
         case 'playing':
         case 'paused':
         case 'finished':
-            player.state = msg.event;
+            player.setState(msg.event);
             break;
         default: return;
     }
@@ -108,7 +140,7 @@ function handleMessage(msg, player) {
     if (oldState !== 'finished' && player.state === 'finished') {
         if (order.length > 0) {
             var nextPlayer = order[0];
-            if (nextPlayer.state !== 'playing') {
+            if (nextPlayer.state !== 'playing' && nextPlayer.automaticState === 'paused') {
                 nextPlayer.play();
             }
         }
@@ -155,7 +187,7 @@ app.ws('/plugin', (ws, req) => {
     ws.on('message', function(msg) {
         msg = JSON.parse(msg);
         sockets[msg.player] = ws;
-        var player = registerPlayer(msg.player, Player);
+        var player = registerPlayer(msg.player, WebSocketPlayer);
         handleMessage(msg, player);
     })
 });

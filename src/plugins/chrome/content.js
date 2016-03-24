@@ -21,12 +21,7 @@ if(typeof(String.prototype.trim) === "undefined")
 var port = chrome.runtime.connect({name: 'audiostack'});
 
 var players = {};
-var tracklist = {};
-
-// username: #watch7-user-header > div > a
-// div.iv-branding-context-name
-// title: #eow-title
-// div.ytp-title > div > a.ytp-title-link > span:nth-child(2)
+//var tracklist = {};
 
 port.onMessage.addListener(function (msg) {
     console.log(msg);
@@ -35,48 +30,30 @@ port.onMessage.addListener(function (msg) {
         switch (msg.command) {
             case 'play':
                 var volume = player.persistentVolume || player.volume;
-                fadeVolume(player, 0, volume, 200);
                 player.play();
-                //playing(msg.player);
                 break;
             case 'pause':
                 player.persistentVolume = player.volume;
-                fadeVolume(player, player.volume, 0, 200, function() {
-                    player.pause();
-                    player.volume = player.persistentVolume;
-                });
-                //paused(msg.player);
+                player.pause();
+                break;
+            case 'ping':
+                if (player && document.contains(player)) {
+                    port.postMessage({
+                        event: 'pong',
+                        player: msg.player
+                    });
+                } else {
+                    closed(msg.player);
+                }
                 break;
         }
     }
 });
 
-function fadeVolume(media, from, to, duration, cb) {
-    media.volume = from;
-    console.log(media.volume);
-    var value = from;
-    var steps = duration / (1000 / 60);
-    var progressPerStep = (to - from) / steps;
-    var step = 0;
-    var interval = window.setInterval(function() {
-        value += progressPerStep;
-        media.volume = value;
-        console.log(media.volume);
-        step++;
-        if (step >= steps - 1) {
-            window.clearInterval(interval);
-            media.volume = to;
-            if (cb) {
-                cb();
-            }
-        }
-    }, 1000/60)
-}
-
 window.onunload = function() {
     for (var key in players) {
         if (players.hasOwnProperty(key))
-            ended(key);
+            closed(key);
     }
 }
 
@@ -105,14 +82,14 @@ function trySelector(queries) {
 }
 
 function playing(id, element) {
-    tracklist[id] = null;
+    //tracklist[id] = null;
     var title = trySelector(titleQueries), artist = trySelector(artistQueries);
 
-    var description = document.querySelector('#eow-description');
-    if (description) {
-        var text = description.innerHTML.replace(/<br>/g, '\n').replace(/<a.*">/g, '').replace(/<\/a>/g, '');
-
-    }
+    //var description = document.querySelector('#eow-description');
+    //if (description) {
+    //    var text = description.innerHTML.replace(/<br>/g, '\n').replace(/<a.*">/g, '').replace(/<\/a>/g, '');
+    //
+    //}
 
     if (element.muted   ) {
         return;
@@ -146,6 +123,14 @@ function ended(id) {
     })
 }
 
+function closed(id) {
+    console.log('Media', id, 'was destroyed');
+    port.postMessage({
+        event: 'closed',
+        player: id
+    })
+}
+
 function registerMedia(element) {
     if (!element.guid) {
         element.guid = generateGuid();
@@ -154,11 +139,20 @@ function registerMedia(element) {
         players[element.guid] = element;
         console.log('Found player', element);
 
+        if (element.duration < 3) {
+            // most likely a notification
+            return;
+        }
+        
         if (!element.paused) {
             playing(element.guid, element);
         }
 
         element.addEventListener('playing', function() {
+            if (element.duration < 3) {
+                // most likely a notification
+                return;
+            }
             playing(element.guid, element);
         });
 
@@ -176,7 +170,7 @@ function registerMedia(element) {
 function findMedia(element) {
     if (element.tagName === 'VIDEO' || element.tagName === 'AUDIO') {
         registerMedia(element);
-    } else {
+    } else if (element.children) {
         for (var i = 0; i < element.children.length; i++) {
             findMedia(element.children[i]);
         }
@@ -185,5 +179,4 @@ function findMedia(element) {
 
 document.addEventListener('DOMSubtreeModified', function(event) {
     findMedia(event.target);
-    //console.log(event.target.children);
 })

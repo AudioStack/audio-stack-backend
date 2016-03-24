@@ -1,0 +1,14 @@
+{
+  "name": "AudioStack-OSX",
+  "description": "Handles iTunes and Spotify on OS X",
+  "version": "0.0.1",
+  "main": "index.js",
+  "type": "MediaPlugin",
+  "os": [
+    "mac"
+  ],
+  "dependencies": {
+    "applescript": "^1.0.0",
+    "q": "^1.4.1"
+  }
+}

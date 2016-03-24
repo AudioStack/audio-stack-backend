@@ -6,16 +6,16 @@ class MediaStack {
         this.mediaByUUID = {};
     }
 
-    putAndPlay(media) {
+    putAndPlay(player) {
         var current = this.getCurrent();
-        this.stack.unshift(media);
-        this.mediaByUUID[media.id] = media;
+        this.stack.unshift(player);
+        this.mediaByUUID[player.id] = player;
         if (current) {
             current.pause().then(function() {
-                media.play();
+                player.play();
             });
         } else {
-            media.play();
+            player.play();
         }
     }
 

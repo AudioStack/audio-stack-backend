@@ -37,7 +37,7 @@ function reconnect() {
     chrome.alarms.create('reconnect', {
         when: Date.now() + reconnectTime
     });
-    console.log("reconnecting in", reconnectTime / 1000, 'seconds');
+    console.log("Reconnecting in", reconnectTime / 1000, 'seconds');
 }
 
 function connect() {
@@ -46,10 +46,13 @@ function connect() {
 
     connection.onopen = function () {
         reconnectTime = 1000;
-        console.log('connected. sending buffer ...');
+        console.log('Connected');
 
-        for (var i = 0; i < sendBuffer.length; i++) {
-            connection.send(JSON.stringify(sendBuffer[i]));
+        if (sendBuffer && sendBuffer.length > 0) {
+            console.log('Sending buffer ...');
+            for (var i = 0; i < sendBuffer.length; i++) {
+                connection.send(JSON.stringify(sendBuffer[i]));
+            }
         }
 
         sendBuffer = [];
@@ -72,7 +75,7 @@ function connect() {
     };
 
     connection.onclose = function () {
-        console.log('connection to websocket lost');
+        console.log('Connection to websocket lost');
         reconnect();
     };
 }

@@ -1,21 +1,27 @@
 'use strict';
 
+let Q = require('q');
+
 class MediaPlugin {
-    constructor(mediastack) {
-        this.state = null;
-        this.stack = mediastack;
+    constructor(messageHandler, name) {
+        this.messageHandler = messageHandler;
+        this.players = {};
+        this.name = name;
     }
 
-    play() {
-        return Promise.reject("Default implementation");
+    registerPlayer(id, clazz) {
+        if (!this.players[id]) {
+            this.players[id] = new clazz(id);
+        }
+        return this.players[id];
     }
 
-    pause() {
-        return Promise.reject("Default implementation");
+    enable() {
+        return Q.reject('Method not implemented');
     }
 
-    getState() {
-        return this.state;
+    disable() {
+        return Q.reject('Method not implemented');
     }
 }
 

@@ -1,0 +1,17 @@
+{
+  "name": "AudioStack-Websocket",
+  "description": "Handles plugins that communicate over the WebSocket API",
+  "version": "0.0.1",
+  "main": "index.js",
+  "type": "MediaPlugin",
+  "os": [
+    "mac",
+    "linux",
+    "win"
+  ],
+  "dependencies": {
+    "express": "^4.13.4",
+    "express-ws": "^1.0.0",
+    "q": "^1.4.1"
+  }
+}

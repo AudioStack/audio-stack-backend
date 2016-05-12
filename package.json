@@ -4,23 +4,14 @@
   "description": "Manages all your audio (and video) players, puts them into a stack and only lets the currently first play",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "electron src/index.js"
+    "start": "node src/test.js"
   },
   "author": "narrowtux",
-  "license": "licenseRef-LICENSE",
+  "license": "MIT",
   "dependencies": {
-    "angular": "^1.5.0",
     "applescript": "^1.0.0",
-    "bootstrap3": "^3.3.5",
-    "express": "^4.13.4",
-    "express-ws": "^1.0.0",
     "lodash": "^4.6.1",
     "q": "^1.4.1",
     "uuid": "^2.0.1"
-  },
-  "devDependencies": {
-    "electron-prebuilt": "^0.36.8",
-    "gulp-electron": "0.0.10"
   }
 }

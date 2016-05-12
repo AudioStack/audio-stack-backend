@@ -180,3 +180,5 @@ function findMedia(element) {
 document.addEventListener('DOMSubtreeModified', function(event) {
     findMedia(event.target);
 })
+
+findMedia(document);

@@ -96,3 +96,7 @@ function handleMessage(msg, player) {
     }
     central.emit('order-change', order)
 }
+
+handleMessage.getOrder = () => {
+    return order;
+}

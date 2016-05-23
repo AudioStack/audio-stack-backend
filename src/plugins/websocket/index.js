@@ -84,7 +84,8 @@ class WebsocketPlugin extends MediaPlugin {
         this.app.ws('/gui', (ws, req) => {
           self.guiSockets.push(ws)
 
-          ws.send(JSON.stringify({hello: "world"}))
+          //initialize GUI with current state
+          ws.send(JSON.stringify({order: self.messageHandler.getOrder()}))
         })
 
         var deferred = Q.defer();

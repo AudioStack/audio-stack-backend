@@ -6,6 +6,7 @@ var connection = null;
 var sendBuffer = [];
 
 chrome.runtime.onConnect.addListener(function (port) {
+    var portPlayers = [];
     port.onMessage.addListener(function(msg) {
         if (connection.readyState !== 1 && connection.readyState !== 0) {
             reconnect();
@@ -17,8 +18,19 @@ chrome.runtime.onConnect.addListener(function (port) {
         }
         console.log(msg);
         ports[msg.player] = port;
+        portPlayers.push(msg.player);
+    })
+    port.onDisconnect.addListener(function(event) {
+        console.log("Port disconnected", portPlayers);
+        for (player in portPlayers) {
+            connection.send(JSON.stringify({
+                event: "closed",
+                player: portPlayers[player]
+            }))
+        }
     })
 });
+
 
 chrome.alarms.onAlarm.addListener(function(alarm) {
    if (alarm.name === 'reconnect') {

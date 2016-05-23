@@ -20,13 +20,14 @@ if(typeof(String.prototype.trim) === "undefined")
 
 var port = chrome.runtime.connect({name: 'audiostack'});
 
-var players = {};
+window.AudioStack = {};
+window.AudioStack.players = {};
 //var tracklist = {};
 
 port.onMessage.addListener(function (msg) {
     console.log(msg);
-    if (players[msg.player]) {
-        var player = players[msg.player];
+    if (window.AudioStack.players[msg.player]) {
+        var player = window.AudioStack.players[msg.player];
         switch (msg.command) {
             case 'play':
                 var volume = player.persistentVolume || player.volume;
@@ -50,12 +51,16 @@ port.onMessage.addListener(function (msg) {
     }
 });
 
-window.onunload = function() {
-    for (var key in players) {
+var onClose = function() {
+    console.log("Closing, all players close", window.AudioStack.players)
+    for (var key in window.AudioStack.players) {
         if (players.hasOwnProperty(key))
             closed(key);
     }
 }
+window.onunload = onClose;
+window.onbeforeunload = onClose;
+window.onhashchange = onClose;
 
 var titleQueries = [
     '#eow-title', //youtube
@@ -135,15 +140,15 @@ function registerMedia(element) {
     if (!element.guid) {
         element.guid = generateGuid();
     }
-    if (!players[element.guid]) {
-        players[element.guid] = element;
+    if (!window.AudioStack.players[element.guid]) {
+        window.AudioStack.players[element.guid] = element;
         console.log('Found player', element);
 
         if (element.duration < 3) {
             // most likely a notification
             return;
         }
-        
+
         if (!element.paused) {
             playing(element.guid, element);
         }
@@ -163,6 +168,12 @@ function registerMedia(element) {
         element.addEventListener('ended', function() {
             ended(element.guid, element);
         });
+        element.addEventListener('abort', function() {
+            ended(element.guid, element);
+        })
+        element.addEventListener('suspend', function() {
+            ended(element.guid, element);
+        })
     }
 }
 
@@ -177,8 +188,9 @@ function findMedia(element) {
     }
 }
 
-document.addEventListener('DOMSubtreeModified', function(event) {
-    findMedia(event.target);
-})
+setInterval(function() {
+    findMedia(document)
+}, 500)
+
 
 findMedia(document);

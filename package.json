@@ -2,9 +2,9 @@
   "name": "audio-stack",
   "version": "0.0.1",
   "description": "Manages all your audio (and video) players, puts them into a stack and only lets the currently first play",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
-    "start": "node src/test.js"
+    "start": "node src/index.js"
   },
   "author": "narrowtux",
   "license": "MIT",

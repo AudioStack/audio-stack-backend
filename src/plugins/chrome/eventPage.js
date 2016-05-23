@@ -42,7 +42,7 @@ function reconnect() {
 
 function connect() {
     cancelAlarm();
-    connection = new WebSocket('ws://localhost:3000/plugin');
+    connection = new WebSocket('ws://localhost:4564/plugin');
 
     connection.onopen = function () {
         reconnectTime = 1000;

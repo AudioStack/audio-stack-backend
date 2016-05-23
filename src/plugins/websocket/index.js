@@ -5,6 +5,7 @@ let Player = require('../../model/player');
 let express = require('express');
 let expressWs = require('express-ws')
 let Q = require('q');
+let _ = require('lodash')
 
 var sockets = {};
 
@@ -37,6 +38,26 @@ class WebSocketPlayer extends Player {
 class WebsocketPlugin extends MediaPlugin {
     constructor(messageHandler) {
         super(messageHandler, 'websocket');
+        this.guiSockets = []
+
+        let self = this;
+        messageHandler.on('player-state', (msg, player) => {
+            self.emitToGUI({
+                playerState: msg,
+                player: player
+            })
+        })
+        messageHandler.on('order-change', (order) => {
+            self.emitToGUI({order})
+        })
+    }
+
+    emitToGUI(message) {
+        _(this.guiSockets).forEach((socket) => {
+            if (socket.readyState ===1 ) {
+                socket.send(JSON.stringify(message))
+            }
+        })
     }
 
     enable(cb) {
@@ -48,8 +69,10 @@ class WebsocketPlugin extends MediaPlugin {
         });
 
         var self = this;
+        var pluginSockets = [];
 
         this.app.ws('/plugin', (ws, req) => {
+            pluginSockets.push(ws)
             ws.on('message', function(msg) {
                 msg = JSON.parse(msg);
                 sockets[msg.player] = ws;
@@ -58,8 +81,14 @@ class WebsocketPlugin extends MediaPlugin {
             })
         });
 
+        this.app.ws('/gui', (ws, req) => {
+          self.guiSockets.push(ws)
+
+          ws.send(JSON.stringify({hello: "world"}))
+        })
+
         var deferred = Q.defer();
-        this.server = this.app.listen(3000, deferred.resolve);
+        this.server = this.app.listen(4564, deferred.resolve);
         return deferred.promise;
     }
 
